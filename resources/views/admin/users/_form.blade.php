@@ -34,7 +34,6 @@
     </div>
 
     {{-- LOGIC: PILIH UNIT RUMAH (KHUSUS WARGA) --}}
-    {{-- Tambahkan ID 'unit-wrapper' agar bisa di-hide via JS --}}
     <div class="mt-4" id="unit-wrapper" style="display: none;">
         <label class="block text-sm font-medium text-gray-700">Assign Unit Rumah (Khusus Warga/Penghuni)</label>
         <select name="ownership_id"
@@ -47,6 +46,22 @@
             @endforeach
         </select>
         <p class="text-xs text-gray-500 mt-1">Pilih unit ini jika user adalah anak/keluarga dari pemilik rumah.</p>
+    </div>
+
+    {{-- LOGIC: PILIH PROFIL TUKANG (KHUSUS TEKNISI) --}}
+    <div class="mt-4" id="technician-wrapper" style="display: none;">
+        <label class="block text-sm font-medium text-gray-700">Assign Profil Tukang (Khusus Teknisi)</label>
+        <select name="technician_id"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            <option value="">-- Pilih Data Master Tukang --</option>
+            @foreach ($technicians as $tech)
+                <option value="{{ $tech->id }}"
+                    {{ $user->technician && $user->technician->id == $tech->id ? 'selected' : '' }}>
+                    {{ $tech->name }} - Spesialis {{ $tech->specialty }}
+                </option>
+            @endforeach
+        </select>
+        <p class="text-xs text-gray-500 mt-1">Pilih profil tukang agar akun ini bisa menerima tugas perbaikan.</p>
     </div>
 
     <div>
@@ -80,26 +95,30 @@
     </div>
 </div>
 
-{{-- SCRIPT SEDERHANA UNTUK SHOW/HIDE --}}
+{{-- SCRIPT UNTUK SHOW/HIDE BERDASARKAN ROLE --}}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const roleSelect = document.getElementById('role-select');
         const unitWrapper = document.getElementById('unit-wrapper');
+        const technicianWrapper = document.getElementById('technician-wrapper');
 
-        function toggleUnitWrapper() {
+        function toggleWrappers() {
+            // Sembunyikan semua dulu
+            unitWrapper.style.display = 'none';
+            technicianWrapper.style.display = 'none';
+
+            // Tampilkan sesuai role
             if (roleSelect.value === 'warga') {
                 unitWrapper.style.display = 'block';
-            } else {
-                unitWrapper.style.display = 'none';
-                // Opsional: Reset value select unit jika di-hide
-                // unitWrapper.querySelector('select').value = ""; 
+            } else if (roleSelect.value === 'teknisi') {
+                technicianWrapper.style.display = 'block';
             }
         }
 
-        // Jalankan saat pertama kali load (untuk edit mode)
-        toggleUnitWrapper();
+        // Jalankan saat pertama load
+        toggleWrappers();
 
-        // Jalankan setiap kali user ganti pilihan dropdown
-        roleSelect.addEventListener('change', toggleUnitWrapper);
+        // Jalankan saat dropdown diubah
+        roleSelect.addEventListener('change', toggleWrappers);
     });
 </script>

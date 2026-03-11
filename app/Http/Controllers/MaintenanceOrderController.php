@@ -42,18 +42,32 @@ class MaintenanceOrderController extends Controller
             abort(403, 'Akses khusus teknisi.');
         }
 
+        // 1. Cari Profil Tukang berdasarkan Akun yang Login
+        $technician = \App\Models\Technician::where('user_id', $user->id)->first();
+
+        if (! $technician) {
+            // Jika Admin belum menghubungkan akun ini ke Master Tukang
+            return abort(403, 'Akun Anda belum dihubungkan dengan Profil Teknisi oleh Admin.');
+        }
+
+        // 2. Pending Orders: Tampilkan semua yang belum di-assign teknisi siapapun
         $pendingOrders = MaintenanceOrder::with(['ownership.unit', 'ownership.customer', 'technician'])
             ->where('status', 'Pending')
+            ->whereNull('technician_id') // Hanya yang nganggur
             ->orderByDesc('complaint_date')
             ->get();
 
+        // 3. In Progress: HANYA TAMPILKAN TUGAS MILIK TEKNISI INI SAJA
         $inProgressOrders = MaintenanceOrder::with(['ownership.unit', 'ownership.customer', 'technician'])
             ->where('status', 'In_Progress')
+            ->where('technician_id', $technician->id) // <--- FILTER KUNCI
             ->orderByDesc('complaint_date')
             ->get();
 
+        // 4. Done: HANYA TAMPILKAN TUGAS YANG DISELESAIKAN TEKNISI INI
         $doneOrders = MaintenanceOrder::with(['ownership.unit', 'ownership.customer', 'technician'])
             ->where('status', 'Done')
+            ->where('technician_id', $technician->id) // <--- FILTER KUNCI
             ->orderByDesc('complaint_date')
             ->limit(10)
             ->get();
@@ -79,28 +93,40 @@ class MaintenanceOrderController extends Controller
             abort(403, 'Akses khusus teknisi.');
         }
 
+        // Cari profil teknisi
+        $technician = \App\Models\Technician::where('user_id', $user->id)->first();
+
         $request->validate([
             'status' => 'required|in:Pending,In_Progress,Done',
         ]);
 
         $order = MaintenanceOrder::findOrFail($id);
-
         $oldStatus = $order->status;
         $newStatus = $request->status;
 
-        // Hanya izinkan transisi yang masuk akal
+        // Transisi 1: Teknisi "Mengklaim" tugas Pending menjadi In Progress
         if ($oldStatus === 'Pending' && $newStatus === 'In_Progress') {
             $order->status = 'In_Progress';
-        } elseif ($oldStatus === 'In_Progress' && $newStatus === 'Done') {
+            $order->technician_id = $technician->id; // Kunci tugas ini buat dia!
+            $technician->update(['status' => 'Busy']); // Status teknisi jadi sibuk
+        }
+        // Transisi 2: Teknisi menyelesaikan tugas
+        elseif ($oldStatus === 'In_Progress' && $newStatus === 'Done') {
+            // Pastikan ini benar-benar tugas dia
+            if ($order->technician_id !== $technician->id) {
+                return back()->with('error', 'Anda tidak berhak menyelesaikan tugas teknisi lain.');
+            }
+
             $order->status = 'Done';
             $order->completion_date = now();
+            $technician->update(['status' => 'Available']); // Teknisi kembali nganggur
         } else {
             return back()->with('error', 'Perubahan status tidak diizinkan.');
         }
 
         $order->save();
 
-        return back()->with('success', 'Status perbaikan berhasil diperbarui oleh teknisi.');
+        return back()->with('success', 'Status perbaikan berhasil diperbarui.');
     }
 
     public function showAdmin($id)

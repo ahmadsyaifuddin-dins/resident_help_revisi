@@ -43,4 +43,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Ownership::class);
     }
+
+    public function technician()
+    {
+        return $this->hasOne(Technician::class);
+    }
 }

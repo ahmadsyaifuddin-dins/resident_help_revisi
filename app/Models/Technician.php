@@ -16,4 +16,9 @@ class Technician extends Model
     {
         return $this->hasMany(MaintenanceOrder::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

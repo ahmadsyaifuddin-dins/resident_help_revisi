@@ -27,9 +27,6 @@ class DashboardController extends Controller
             $pendingComplaints = MaintenanceOrder::where('status', 'Pending')->count();
             $processComplaints = MaintenanceOrder::where('status', 'In_Progress')->count();
 
-            // 2. Data Chart 1: Unit Status (Pie Chart)
-            // Kita sudah punya $soldUnits dan $availableUnits
-
             // 3. Data Chart 2: Keluhan per Bulan (Bar Chart) - 6 Bulan Terakhir
             $complaintsPerMonth = MaintenanceOrder::select(
                 DB::raw('count(id) as total'),
@@ -54,11 +51,31 @@ class DashboardController extends Controller
             ));
         }
 
-        // JIKA TEKNISI: Fokus ke keluhan masuk & progres pekerjaan
         if ($user->role === 'teknisi') {
-            $pendingComplaints = MaintenanceOrder::where('status', 'Pending')->count();
-            $processComplaints = MaintenanceOrder::where('status', 'In_Progress')->count();
-            $doneComplaints = MaintenanceOrder::where('status', 'Done')->count();
+            // Cari profil teknisi yang terhubung dengan user ini
+            $technician = Technician::where('user_id', $user->id)->first();
+
+            // Jika belum terhubung, set semua statistik ke 0 untuk mencegah error
+            if (! $technician) {
+                $pendingComplaints = 0;
+                $processComplaints = 0;
+                $doneComplaints = 0;
+            } else {
+                // Keluhan Baru: Tampilkan semua yang statusnya 'Pending' dan belum ada teknisinya
+                $pendingComplaints = MaintenanceOrder::where('status', 'Pending')
+                    ->whereNull('technician_id')
+                    ->count();
+
+                // Sedang Diproses: HANYA yang dikerjakan oleh teknisi ini
+                $processComplaints = MaintenanceOrder::where('status', 'In_Progress')
+                    ->where('technician_id', $technician->id)
+                    ->count();
+
+                // Selesai Dikerjakan: HANYA yang diselesaikan oleh teknisi ini
+                $doneComplaints = MaintenanceOrder::where('status', 'Done')
+                    ->where('technician_id', $technician->id)
+                    ->count();
+            }
 
             return view('dashboard', compact(
                 'pendingComplaints',

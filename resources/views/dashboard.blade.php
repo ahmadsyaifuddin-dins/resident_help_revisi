@@ -4,6 +4,7 @@
     </x-slot>
 
     @if (Auth::user()->role === 'admin')
+        {{-- DASHBOARD ADMIN --}}
         <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
             <div class="flex items-center p-4 bg-white rounded-lg shadow-xs">
                 <div class="p-3 mr-4 text-green-500 bg-green-100 rounded-full">
@@ -118,39 +119,58 @@
             });
         </script>
     @elseif (Auth::user()->role === 'teknisi')
-        {{-- DASHBOARD TEKNISI: Fokus ke Keluhan Masuk & Progres --}}
-        <div class="grid gap-6 mb-8 md:grid-cols-3">
-            <div class="flex items-center p-4 bg-white rounded-lg shadow-xs">
-                <div class="p-3 mr-4 text-red-500 bg-red-100 rounded-full">
-                    <i class="fas fa-exclamation-triangle fa-lg"></i>
+        {{-- DASHBOARD TEKNISI --}}
+        @php
+            $isTechnicianLinked = \App\Models\Technician::where('user_id', Auth::id())->exists();
+        @endphp
+
+        @if (!$isTechnicianLinked)
+            <div class="p-4 mb-6 text-sm text-yellow-800 rounded-lg bg-yellow-50" role="alert">
+                <span class="font-medium">Perhatian!</span> Akun Anda belum dihubungkan dengan Master Data Tukang.
+                Silakan hubungi Administrator.
+            </div>
+        @else
+            <div class="grid gap-6 mb-8 md:grid-cols-3">
+                <div class="flex items-center p-4 bg-white rounded-lg shadow-xs">
+                    <div class="p-3 mr-4 text-red-500 bg-red-100 rounded-full">
+                        <i class="fas fa-exclamation-triangle fa-lg"></i>
+                    </div>
+                    <div>
+                        <p class="mb-2 text-sm font-medium text-gray-600">Keluhan Baru</p>
+                        <p class="text-lg font-semibold text-gray-700">{{ $pendingComplaints }}</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="mb-2 text-sm font-medium text-gray-600">Keluhan Baru</p>
-                    <p class="text-lg font-semibold text-gray-700">{{ $pendingComplaints }}</p>
+
+                <div class="flex items-center p-4 bg-white rounded-lg shadow-xs">
+                    <div class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full">
+                        <i class="fas fa-tools fa-lg"></i>
+                    </div>
+                    <div>
+                        <p class="mb-2 text-sm font-medium text-gray-600">Sedang Diproses (Tugas Saya)</p>
+                        <p class="text-lg font-semibold text-gray-700">{{ $processComplaints }}</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center p-4 bg-white rounded-lg shadow-xs">
+                    <div class="p-3 mr-4 text-green-500 bg-green-100 rounded-full">
+                        <i class="fas fa-check-circle fa-lg"></i>
+                    </div>
+                    <div>
+                        <p class="mb-2 text-sm font-medium text-gray-600">Selesai Dikerjakan</p>
+                        <p class="text-lg font-semibold text-gray-700">{{ $doneComplaints }}</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex items-center p-4 bg-white rounded-lg shadow-xs">
-                <div class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full">
-                    <i class="fas fa-tools fa-lg"></i>
-                </div>
-                <div>
-                    <p class="mb-2 text-sm font-medium text-gray-600">Sedang Diproses</p>
-                    <p class="text-lg font-semibold text-gray-700">{{ $processComplaints }}</p>
-                </div>
+            <div class="mt-4 border-t pt-4">
+                <a href="{{ route('technician.maintenance.index') }}"
+                    class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 shadow transition">
+                    <i class="fas fa-clipboard-list mr-2"></i> Lihat Daftar Tugas
+                </a>
             </div>
-
-            <div class="flex items-center p-4 bg-white rounded-lg shadow-xs">
-                <div class="p-3 mr-4 text-green-500 bg-green-100 rounded-full">
-                    <i class="fas fa-check-circle fa-lg"></i>
-                </div>
-                <div>
-                    <p class="mb-2 text-sm font-medium text-gray-600">Selesai Dikerjakan</p>
-                    <p class="text-lg font-semibold text-gray-700">{{ $doneComplaints }}</p>
-                </div>
-            </div>
-        </div>
+        @endif
     @else
+        {{-- DASHBOARD WARGA / NASABAH --}}
         <div class="bg-white rounded-lg shadow-md p-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Selamat Datang, {{ Auth::user()->name }}!</h2>
             <p class="text-gray-600 mb-6">Berikut adalah ringkasan aktivitas akun Anda di Resident Help.</p>
@@ -179,4 +199,5 @@
             </div>
         </div>
     @endif
+
 </x-app-layout>

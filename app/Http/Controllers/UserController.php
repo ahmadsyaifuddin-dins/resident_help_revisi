@@ -19,20 +19,21 @@ class UserController extends Controller
     // Method CREATE (Menampilkan Form Tambah)
     public function create()
     {
-        // 1. Ambil list kepemilikan Active (sama seperti di edit)
         $ownerships = Ownership::with(['unit', 'customer'])
             ->where('status', 'Active')
             ->get();
 
-        // 2. Kirim $ownerships ke view
-        // Kita juga kirim 'user' kosong agar _form.blade.php tidak error saat akses $user->name, dll.
+        // Ambil data teknisi yang BELUM dihubungkan ke akun manapun
+        $technicians = \App\Models\Technician::whereNull('user_id')->get();
+
         return view('admin.users.create', [
             'user' => new User,
             'ownerships' => $ownerships,
+            'technicians' => $technicians, // Kirim ke view
         ]);
     }
 
-    // Method STORE (Menyimpan Data Baru)
+    // Method STORE
     public function store(Request $request)
     {
         $request->validate([
@@ -41,51 +42,76 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required',
             'ownership_id' => 'nullable|exists:ownerships,id',
+            'technician_id' => 'nullable|exists:technicians,id', // Validasi baru
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'phone' => $request->phone,
             'role' => $request->role,
-
-            // Simpan ownership_id (bisa null jika bukan warga)
             'ownership_id' => $request->ownership_id,
         ]);
+
+        // LOGIC KHUSUS TEKNISI: Hubungkan ke master data tukang
+        if ($user->role === 'teknisi' && $request->technician_id) {
+            \App\Models\Technician::where('id', $request->technician_id)
+                ->update(['user_id' => $user->id]);
+        }
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Pengguna baru berhasil ditambahkan.');
     }
 
+    // Method EDIT
     public function edit(User $user)
     {
-        // Ambil list kepemilikan yang ACTIVE saja untuk dipilih
         $ownerships = Ownership::with(['unit', 'customer'])
             ->where('status', 'Active')
             ->get();
 
-        return view('admin.users.edit', compact('user', 'ownerships'));
+        // Ambil teknisi yang BELUM terikat, ATAU yang terikat dengan user ini
+        $technicians = \App\Models\Technician::whereNull('user_id')
+            ->orWhere('user_id', $user->id)
+            ->get();
+
+        return view('admin.users.edit', compact('user', 'ownerships', 'technicians'));
     }
 
+    // Method UPDATE
     public function update(Request $request, User $user)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$user->id,
             'role' => 'required',
-            // Validasi ownership_id opsional (boleh kosong kalau bukan warga)
             'ownership_id' => 'nullable|exists:ownerships,id',
+            'technician_id' => 'nullable|exists:technicians,id', // Validasi baru
         ]);
 
         $data = $request->only(['name', 'email', 'role', 'ownership_id']);
 
-        // Update password hanya jika diisi
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
 
         $user->update($data);
+
+        // LOGIC KHUSUS TEKNISI (Update Relasi)
+        if ($request->role === 'teknisi') {
+            if ($request->technician_id) {
+                // 1. Lepas dulu tukang lama yang mungkin nyangkut di user ini
+                \App\Models\Technician::where('user_id', $user->id)->update(['user_id' => null]);
+
+                // 2. Pasang tukang yang baru dipilih
+                \App\Models\Technician::where('id', $request->technician_id)
+                    ->update(['user_id' => $user->id]);
+            }
+        } else {
+            // Jika role diubah (bukan teknisi lagi), lepas ikatannya
+            \App\Models\Technician::where('user_id', $user->id)->update(['user_id' => null]);
+        }
 
         return redirect()->route('admin.users.index')->with('success', 'Data pengguna diperbarui');
     }
