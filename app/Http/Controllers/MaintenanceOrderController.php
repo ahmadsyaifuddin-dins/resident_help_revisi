@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 
 class MaintenanceOrderController extends Controller
 {
-    // --- FITUR ADMIN ---
+    // FITUR ADMIN
 
     public function indexAdmin()
     {
@@ -27,7 +27,7 @@ class MaintenanceOrderController extends Controller
         return view('admin.maintenance.index', compact('orders'));
     }
 
-    // --- FITUR TEKNISI ---
+    // FITUR TEKNISI
 
     /**
      * Dashboard daftar keluhan untuk teknisi:
@@ -60,14 +60,14 @@ class MaintenanceOrderController extends Controller
         // 3. In Progress: HANYA TAMPILKAN TUGAS MILIK TEKNISI INI SAJA
         $inProgressOrders = MaintenanceOrder::with(['ownership.unit', 'ownership.customer', 'technician'])
             ->where('status', 'In_Progress')
-            ->where('technician_id', $technician->id) // <--- FILTER KUNCI
+            ->where('technician_id', $technician->id)
             ->orderByDesc('complaint_date')
             ->get();
 
         // 4. Done: HANYA TAMPILKAN TUGAS YANG DISELESAIKAN TEKNISI INI
         $doneOrders = MaintenanceOrder::with(['ownership.unit', 'ownership.customer', 'technician'])
             ->where('status', 'Done')
-            ->where('technician_id', $technician->id) // <--- FILTER KUNCI
+            ->where('technician_id', $technician->id)
             ->orderByDesc('complaint_date')
             ->limit(10)
             ->get();
@@ -172,8 +172,6 @@ class MaintenanceOrderController extends Controller
                 Technician::where('id', $order->technician_id)->update(['status' => 'Available']);
             }
         }
-        // Logic Biaya dipindah KELUAR dari if(Done).
-        // Jadi mau statusnya 'Pending', 'In_Progress', atau 'Done', biaya tetap tersimpan.
 
         if ($cleanCost > 0) {
             $order->cost = $cleanCost;
@@ -197,7 +195,7 @@ class MaintenanceOrderController extends Controller
         return redirect()->route('admin.maintenance.index')
             ->with('success', 'Status & Biaya berhasil diperbarui.');
     }
-    // --- FITUR WARGA / USER ---
+    // FITUR WARGA / USER
 
     public function indexUser()
     {
@@ -272,7 +270,7 @@ class MaintenanceOrderController extends Controller
             ->with('success', 'Keluhan berhasil dikirim. Menunggu respon Admin.');
     }
 
-    // --- FITUR UPDATE PEMBAYARAN ---
+    // FITUR UPDATE PEMBAYARAN
     public function markAsPaid($id)
     {
         $order = MaintenanceOrder::findOrFail($id);
