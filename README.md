@@ -67,7 +67,7 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 
 
-## cara installasi nya
+## Cara installasi nya
 
 1. Clone Repository Buka terminal atau command prompt dan jalankan perintah berikut untuk mengkloning repositori dari GitHub. pastikan posisi sudah di dalam folder www root dari terminal (cmd atau pakai cmder bawaan laragon)
  `git clone https://github.com/ahmadsyaifuddin-dins/resident_help_revisi.git`
