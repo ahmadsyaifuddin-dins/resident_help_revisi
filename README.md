@@ -64,3 +64,31 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+
+## cara installasi nya
+
+1. Clone Repository Buka terminal atau command prompt dan jalankan perintah berikut untuk mengkloning repositori dari GitHub. pastikan posisi sudah di dalam folder www root dari terminal (cmd atau pakai cmder bawaan laragon)
+ `git clone https://github.com/ahmadsyaifuddin-dins/resident_help_revisi.git`
+
+2. Masuk ke Direktori Proyek Setelah proses kloning selesai, navigasikan ke direktori proyek.
+`cd resident_help_revisi`
+
+3. Instal Dependensi PHP Jalankan Composer untuk menginstal semua dependensi PHP yang diperlukan oleh proyek.
+`composer install`
+
+4. Instal Dependensi JavaScript Jalankan NPM untuk menginstal semua dependensi frontend seperti Tailwind CSS dan Vite.
+`npm install && npm run build`
+
+5. Buat File Environment Salin file .env.exmple menjadi file baru bernama .env. File ini akan digunakan untuk menyimpan semua konfigurasi lingkungan proyek .
+`copy .env.example .env`
+
+6. Jalankan Migrasi Database Perintah ini akan membuat semua tabel yang diperlukan dalam database berdasarkan file-file migrasi yang ada di database/migrations.
+`php artisan migrate --seed` lalu yes
+
+7. Buat Symbolic Link untuk Storage Perintah ini akan membuat symbolic link dari public/storage ke storage/app/public. Ini diperlukan agar file yang diunggah (misalnya gambar) dapat diakses melalui web.
+`php artisan storage:link`
+
+8. Buka terminal kedua dan jalankan server PHP Artisan:
+`php artisan serve` -> http://127.0.0.1:8000
