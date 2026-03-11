@@ -314,6 +314,25 @@ class MaintenanceOrderController extends Controller
         return back()->with('success', 'Terima kasih atas penilaian Anda!');
     }
 
+    public function showTechnician($id)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'teknisi') {
+            abort(403, 'Akses khusus teknisi.');
+        }
+
+        $technician = \App\Models\Technician::where('user_id', $user->id)->first();
+        $order = MaintenanceOrder::with(['ownership.unit', 'ownership.customer', 'reporter'])->findOrFail($id);
+
+        // Keamanan: Cegah teknisi melihat detail tugas yang sudah diklaim teknisi lain
+        if ($order->technician_id !== null && $order->technician_id !== $technician->id) {
+            abort(403, 'Akses ditolak. Ini adalah pekerjaan milik teknisi lain.');
+        }
+
+        return view('technician.maintenance.show', compact('order'));
+    }
+
     // CETAK TIKET (BONUS)
     public function printTicket($id)
     {

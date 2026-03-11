@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\CustomersExport;
 use App\Models\MaintenanceOrder;
+use App\Models\Ownership;
 use App\Models\Technician;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -87,6 +88,54 @@ class ReportController extends Controller
         $pdf = Pdf::loadView('admin.reports.pdf.ratings', compact('reviews', 'averageRating'));
 
         return $pdf->stream('Laporan-Kepuasan-Pelanggan.pdf');
+    }
+
+    // 6. LAPORAN PENDAPATAN PERBAIKAN (FINANSIAL)
+    public function financialPdf()
+    {
+        $orders = MaintenanceOrder::with(['ownership.unit', 'ownership.customer'])
+            ->where('cost', '>', 0) // Hanya ambil yang ada harganya (non-garansi)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $totalRevenue = $orders->where('payment_status', 'Paid')->sum('cost');
+        $totalUnpaid = $orders->where('payment_status', 'Unpaid')->sum('cost');
+
+        $pdf = Pdf::loadView('admin.reports.pdf.financial', compact('orders', 'totalRevenue', 'totalUnpaid'));
+
+        return $pdf->stream('Laporan-Pendapatan-Perbaikan.pdf');
+    }
+
+    // 7. LAPORAN STATUS GARANSI UNIT
+    public function warrantyPdf()
+    {
+        $ownerships = Ownership::with(['unit', 'customer'])
+            ->orderBy('warranty_end_date', 'asc')
+            ->get();
+
+        $pdf = Pdf::loadView('admin.reports.pdf.warranty', compact('ownerships'));
+
+        return $pdf->stream('Laporan-Status-Garansi.pdf');
+    }
+
+    // 8. LAPORAN DATA & PENJUALAN UNIT
+    public function unitsPdf()
+    {
+        // Ambil semua unit beserta data kepemilikannya (jika ada)
+        $units = \App\Models\Unit::leftJoin('ownerships', function ($join) {
+            $join->on('units.id', '=', 'ownerships.unit_id')
+                ->where('ownerships.status', '=', 'Active');
+        })
+            ->leftJoin('customers', 'ownerships.customer_id', '=', 'customers.id')
+            ->select('units.*', 'ownerships.purchase_method', 'customers.name as customer_name')
+            ->orderBy('units.block')
+            ->orderBy('units.number')
+            ->get();
+
+        $pdf = Pdf::loadView('admin.reports.pdf.units', compact('units'));
+        $pdf->setPaper('A4', 'landscape'); // Format landscape agar tabel muat banyak
+
+        return $pdf->stream('Laporan-Data-Unit.pdf');
     }
 
     // EXPORT EXCEL NASABAH

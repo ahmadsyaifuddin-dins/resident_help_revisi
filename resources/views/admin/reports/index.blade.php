@@ -95,20 +95,59 @@
             </div>
         </div>
 
-        <div class="p-6 bg-white rounded-lg shadow-md border-l-4 border-green-500">
+        {{-- LAPORAN 6: PENDAPATAN --}}
+        <div class="p-6 bg-white rounded-lg shadow-md border-l-4 border-emerald-500">
             <div class="flex items-center mb-4">
-                <div class="p-3 bg-green-100 rounded-full text-green-500 mr-4">
-                    <i class="fas fa-address-book fa-lg"></i>
+                <div class="p-3 bg-emerald-100 rounded-full text-emerald-500 mr-4">
+                    <i class="fas fa-money-bill-wave fa-lg"></i>
                 </div>
                 <div>
-                    <h4 class="font-bold text-gray-700">Database Nasabah</h4>
-                    <p class="text-xs text-gray-500">Export data lengkap ke Excel</p>
+                    <h4 class="font-bold text-gray-700">6. Pendapatan Perbaikan</h4>
+                    <p class="text-xs text-gray-500">Laporan tagihan warga</p>
                 </div>
             </div>
             <div class="mt-4">
-                <a href="{{ route('admin.reports.customers.excel') }}"
-                    class="block w-full bg-green-600 text-white text-center py-2 rounded text-sm hover:bg-green-700">
-                    <i class="fas fa-file-excel mr-1"></i> Download Excel
+                <a href="{{ route('admin.reports.financial.pdf') }}" target="_blank"
+                    class="block w-full bg-red-600 text-white text-center py-2 rounded text-sm hover:bg-red-700">
+                    <i class="fas fa-file-pdf mr-1"></i> Cetak PDF
+                </a>
+            </div>
+        </div>
+
+        {{-- LAPORAN 7: GARANSI --}}
+        <div class="p-6 bg-white rounded-lg shadow-md border-l-4 border-cyan-500">
+            <div class="flex items-center mb-4">
+                <div class="p-3 bg-cyan-100 rounded-full text-cyan-500 mr-4">
+                    <i class="fas fa-shield-alt fa-lg"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-700">7. Status Garansi Unit</h4>
+                    <p class="text-xs text-gray-500">Aktif & Expired</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{{ route('admin.reports.warranty.pdf') }}" target="_blank"
+                    class="block w-full bg-red-600 text-white text-center py-2 rounded text-sm hover:bg-red-700">
+                    <i class="fas fa-file-pdf mr-1"></i> Cetak PDF
+                </a>
+            </div>
+        </div>
+
+        {{-- LAPORAN 8: UNIT & PENJUALAN --}}
+        <div class="p-6 bg-white rounded-lg shadow-md border-l-4 border-pink-500">
+            <div class="flex items-center mb-4">
+                <div class="p-3 bg-pink-100 rounded-full text-pink-500 mr-4">
+                    <i class="fas fa-city fa-lg"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-700">8. Data & Status Unit</h4>
+                    <p class="text-xs text-gray-500">Tersedia vs Terjual</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{{ route('admin.reports.units.pdf') }}" target="_blank"
+                    class="block w-full bg-red-600 text-white text-center py-2 rounded text-sm hover:bg-red-700">
+                    <i class="fas fa-file-pdf mr-1"></i> Cetak PDF
                 </a>
             </div>
         </div>

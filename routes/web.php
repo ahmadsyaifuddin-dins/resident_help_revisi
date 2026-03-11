@@ -52,15 +52,24 @@ Route::middleware('auth')->group(function () {
         // Route Cetak PDF
         Route::get('reports/print/complaints', [\App\Http\Controllers\ReportController::class, 'complaintsPdf'])->name('reports.complaints.pdf');
         Route::get('reports/print/technicians', [\App\Http\Controllers\ReportController::class, 'techniciansPdf'])->name('reports.technicians.pdf');
-        Route::get('reports/excel/customers', [\App\Http\Controllers\ReportController::class, 'customersExcel'])->name('reports.customers.excel');
         Route::get('reports/print/category-stats', [\App\Http\Controllers\ReportController::class, 'categoryStatsPdf'])->name('reports.category.pdf');
         Route::get('reports/print/sla', [\App\Http\Controllers\ReportController::class, 'slaPdf'])->name('reports.sla.pdf');
         Route::get('reports/print/ratings', [\App\Http\Controllers\ReportController::class, 'ratingsPdf'])->name('reports.ratings.pdf');
+
+        Route::get('reports/print/financial', [\App\Http\Controllers\ReportController::class, 'financialPdf'])->name('reports.financial.pdf');
+        Route::get('reports/print/warranty', [\App\Http\Controllers\ReportController::class, 'warrantyPdf'])->name('reports.warranty.pdf');
+        Route::get('reports/print/units', [\App\Http\Controllers\ReportController::class, 'unitsPdf'])->name('reports.units.pdf');
+
+        Route::get('reports/excel/customers', [\App\Http\Controllers\ReportController::class, 'customersExcel'])->name('reports.customers.excel');
     });
 
     // --- AREA TEKNISI ---
     Route::get('/technician/maintenance', [MaintenanceOrderController::class, 'indexTechnician'])
         ->name('technician.maintenance.index');
+
+    Route::get('/technician/maintenance/{id}', [MaintenanceOrderController::class, 'showTechnician'])
+        ->name('technician.maintenance.show');
+
     Route::put('/technician/maintenance/{id}', [MaintenanceOrderController::class, 'technicianUpdateStatus'])
         ->name('technician.maintenance.update');
 

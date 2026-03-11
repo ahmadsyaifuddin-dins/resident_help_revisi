@@ -29,7 +29,8 @@
                                     <td class="px-4 py-3">
                                         <div class="text-sm">
                                             <p class="font-semibold">
-                                                Blok {{ $order->ownership->unit->block }}-{{ $order->ownership->unit->number }}
+                                                Blok
+                                                {{ $order->ownership->unit->block }}-{{ $order->ownership->unit->number }}
                                             </p>
                                             <p class="text-xs text-gray-600">
                                                 {{ $order->complaint_date->format('d/m/Y') }}
@@ -37,7 +38,8 @@
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 text-sm">
-                                        <span class="font-bold block">{{ \Illuminate\Support\Str::limit($order->complaint_title, 30) }}</span>
+                                        <span
+                                            class="font-bold block">{{ \Illuminate\Support\Str::limit($order->complaint_title, 30) }}</span>
                                         <span class="text-xs text-gray-500">
                                             {{ \Illuminate\Support\Str::limit($order->complaint_description, 60) }}
                                         </span>
@@ -97,7 +99,8 @@
                                     <td class="px-4 py-3">
                                         <div class="text-sm">
                                             <p class="font-semibold">
-                                                Blok {{ $order->ownership->unit->block }}-{{ $order->ownership->unit->number }}
+                                                Blok
+                                                {{ $order->ownership->unit->block }}-{{ $order->ownership->unit->number }}
                                             </p>
                                             <p class="text-xs text-gray-600">
                                                 {{ $order->complaint_date->format('d/m/Y') }}
@@ -105,7 +108,8 @@
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 text-sm">
-                                        <span class="font-bold block">{{ \Illuminate\Support\Str::limit($order->complaint_title, 30) }}</span>
+                                        <span
+                                            class="font-bold block">{{ \Illuminate\Support\Str::limit($order->complaint_title, 30) }}</span>
                                         <span class="text-xs text-gray-500">
                                             {{ \Illuminate\Support\Str::limit($order->complaint_description, 60) }}
                                         </span>
@@ -115,7 +119,7 @@
                                     </td>
                                     <td class="px-4 py-3 text-sm space-x-2">
                                         {{-- Tombol LIHAT DETAIL (bisa dikembangkan) --}}
-                                        <a href="{{ route('admin.maintenance.show', $order->id) }}"
+                                        <a href="{{ route('technician.maintenance.show', $order->id) }}"
                                             class="px-3 py-1 border border-gray-300 rounded text-xs text-gray-700 hover:bg-gray-50">
                                             Detail
                                         </a>
@@ -170,7 +174,8 @@
                                     <td class="px-4 py-3">
                                         <div class="text-sm">
                                             <p class="font-semibold">
-                                                Blok {{ $order->ownership->unit->block }}-{{ $order->ownership->unit->number }}
+                                                Blok
+                                                {{ $order->ownership->unit->block }}-{{ $order->ownership->unit->number }}
                                             </p>
                                             <p class="text-xs text-gray-600">
                                                 {{ optional($order->completion_date)->format('d/m/Y') ?? '-' }}
@@ -178,7 +183,8 @@
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 text-sm">
-                                        <span class="font-bold block">{{ \Illuminate\Support\Str::limit($order->complaint_title, 30) }}</span>
+                                        <span
+                                            class="font-bold block">{{ \Illuminate\Support\Str::limit($order->complaint_title, 30) }}</span>
                                     </td>
                                     <td class="px-4 py-3 text-sm">
                                         {{ $order->technician->name ?? '-' }}
@@ -210,4 +216,3 @@
         });
     </script>
 </x-app-layout>
-
